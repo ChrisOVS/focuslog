@@ -780,7 +780,7 @@ function loadDemo(){
 /* =====================================================================
    SUPABASE SYNC  (optional, offline-first)
    ===================================================================== */
-let sb=null, sbUser=null;
+let sb=null, sbUser=null, syncing=false;
 function loadSbLib(){
   return new Promise((res,rej)=>{
     if(window.supabase) return res();
@@ -852,6 +852,7 @@ function mergeRemote(arrName, rows, fromFn){
 }
 async function syncNow(){
   if(!sb||!sbUser){ toast('Sign in to sync.'); return; }
+  if(syncing) return; syncing=true;
   const since=S.sync.lastSyncAt; const stamp=nowIso();
   try{
     setSyncStatus('warn','Syncing…');
@@ -869,6 +870,7 @@ async function syncNow(){
     if(currentView==='insights')renderInsights(); if(currentView==='log')renderLog(); if(currentView==='plan')renderPlan();
     refreshSyncUi(); setSyncStatus('ok','Synced'); toast('Synced ✓');
   }catch(e){ console.warn(e); setSyncStatus('err','Sync error'); toast('Sync failed: '+(e.message||e)); }
+  finally{ syncing=false; }
 }
 let autoSyncT=null;
 function maybeAutoSync(){
@@ -1012,6 +1014,13 @@ async function init(){
   if(S.sync.url && S.sync.key){
     sbInit().then(()=>{ refreshSyncUi(); if(sbUser && S.settings.autoSync) syncNow(); }).catch(()=>refreshSyncUi());
   } else { setSyncStatus('','Local only'); }
+
+  // keep devices in sync without manual action: pull on focus, on reconnect, and periodically
+  const maybePull=()=>{ if(sb && sbUser && S.settings.autoSync && navigator.onLine && !syncing) syncNow(); };
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) maybePull(); });
+  window.addEventListener('focus', maybePull);
+  window.addEventListener('online', maybePull);
+  setInterval(maybePull, 30000);
 
   // warn before leaving mid-session
   window.addEventListener('beforeunload',e=>{ if(timer.running){ e.preventDefault(); e.returnValue=''; } });
