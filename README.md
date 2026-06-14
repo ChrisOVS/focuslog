@@ -1,112 +1,89 @@
 # FocusLog — Study Timer
 
 A clean, dark-themed study timer that logs your sessions, lets you plan ahead, and
-shows you how and when you study. It's a **PWA** (Progressive Web App), so you can
-install it on your Windows taskbar *and* your iPhone home screen, and optionally
-**sync the same data across both** through a free Supabase backend.
+shows you how and when you study. It's an installable **PWA**, so it lives on your
+Windows taskbar *and* your iPhone Home Screen, with the **same data synced across both**
+through a free Supabase backend. It also works fully offline.
 
-It works **fully offline** and **local-only** out of the box — sync is optional.
+## 🔗 Live app
+
+**https://chrisovs.github.io/focuslog/**
+
+Open that link on any device to use FocusLog. Install steps below.
 
 ---
 
-## What's inside
+## 📱 Install on your iPhone (Safari)
 
-| File | What it is |
+> It **must be Safari** — iOS only lets Safari add web apps to the Home Screen.
+
+1. Open **Safari** on your iPhone and go to **https://chrisovs.github.io/focuslog/**
+2. Tap the **Share** button — the square with an upward arrow (bottom centre of the screen, or top-right on iPad).
+3. In the share sheet, **scroll down** and tap **“Add to Home Screen.”**
+4. Leave the name as **FocusLog** (or change it), then tap **Add** (top-right).
+5. Close Safari. Tap the new **FocusLog** icon on your Home Screen — it opens full-screen, just like a native app.
+
+### Turn on sync on the iPhone
+
+So your phone shows the same data as your PC:
+
+6. In FocusLog, go to **Settings → Sync across devices**.
+7. Enter your project details and tap **Save connection**:
+   - **Project URL:** `https://idzikqlyymapnsbbdlcr.supabase.co`
+   - **Public key:** `sb_publishable_b7pWw9WDpgVxyTgyQwCFNQ_doPrKOMB`
+   *(This is the publishable/anon key — safe to keep here; your rows are protected by Row Level Security.)*
+8. **Sign in** with the **same email and password** you created on your PC.
+9. Tap **Sync now** (or just wait — auto-sync runs). Your exams, sessions, and plans appear. 🎉
+
+> Tip: after signing in once, the app remembers it. Open FocusLog from the Home Screen and your data is there.
+
+---
+
+## 💻 Install on your PC (Windows taskbar)
+
+1. Open **https://chrisovs.github.io/focuslog/** in **Edge** or **Chrome**.
+2. Click the **Install** icon at the right of the address bar (or menu **⋯ → Apps → Install FocusLog**). You can also use the **Install app** button on the app’s Settings page.
+3. It opens in its own window. **Right-click its taskbar icon → Pin to taskbar.** Now one click launches it.
+4. Sync is already set up on this device. If you ever need it again: Settings → Sync → the URL/key above → sign in.
+
+---
+
+## 🔁 How sync works
+
+- Data is saved **locally on each device** and synced through **your own Supabase project**.
+- Only **you** can read it — every row is tied to your account via Row Level Security.
+- With sync **off** (blank URL/key), nothing ever leaves the device.
+- Changes flow automatically a couple of seconds after you make them (Auto-sync), or tap **Sync now**.
+
+---
+
+## ✨ Features
+
+- **Timer** — stopwatch or countdown with a focus ring. Break reminders announce with a chime, a spoken message, a notification, and an on-screen banner.
+- **Effort & attention logging** — rate each session (effort 1–5, % attention), add a note, tag the exam. Add past sessions manually too.
+- **Plan** — one-off or recurring weekly sessions (e.g. every Saturday), with notes and an exam.
+- **Exams** — add your own or pick from the dropdown; set an exam date for a live countdown.
+- **Insights** — total/weekly hours, day streak, averages, a minutes-per-day chart, a “when you study” heatmap, time-per-exam bars, an effort/attention trend, and auto-generated suggestions.
+- **Your data** — JSON backup/restore, CSV export, demo data, or clear everything.
+
+---
+
+## 🗂 Project files
+
+| File | Purpose |
 |---|---|
-| `index.html` | The app |
-| `styles.css` | Dark theme (indigo / teal / amber accents) |
-| `app.js` | All the logic — timer, planner, insights, sync |
-| `manifest.webmanifest` | Makes it installable |
-| `service-worker.js` | Offline caching |
-| `icons/` | App icons |
-| `supabase-setup.sql` | One-time database setup for cross-device sync |
+| `index.html`, `styles.css`, `app.js` | The app |
+| `manifest.webmanifest`, `service-worker.js` | Make it installable / offline |
+| `*.png` (icons) | App icons |
+| `supabase-setup.sql` | One-time database setup for sync |
 
 ---
 
-## Features
+## 🛠 Re-create the sync backend (only if you ever need to)
 
-- **Timer** — stopwatch or countdown, with a focus ring. Break reminders announce
-  themselves with a chime, a spoken message ("You've done 25 minutes, take a break"),
-  a desktop notification, and an on-screen banner.
-- **Logging** — when you finish, rate your **effort (1–5)** and **% attention**, add a
-  note, and tag the exam. You can also add past sessions **manually**.
-- **Plan** — schedule **one-off** sessions on a date or **recurring weekly** ones
-  (e.g. every Saturday), each with optional notes and an exam.
-- **Exams** — add your own or pick from the dropdown anywhere; set an exam date to get
-  a live countdown.
-- **Insights** — total/weekly hours, day streak, avg effort & attention, a
-  minutes-per-day chart, a "when you study" heatmap, time-per-exam bars, an
-  effort/attention trend line, and **automatic suggestions**.
-- **Your data** — export/import a JSON backup, export sessions to CSV, load demo data
-  to explore, or clear everything.
-
----
-
-## 1. Use it right now (no setup)
-
-Just open `index.html` in your browser (double-click it) and start using it.
-Everything saves locally on that device. To get the installable app icon, taskbar
-pinning, and notifications, host it (Step 2) — those need a real web address.
-
----
-
-## 2. Install on your PC (Windows taskbar)
-
-PWAs install best from a hosted **https** address. The two easiest free options:
-
-### Option A — Netlify Drop (no account, 60 seconds)
-1. Go to **https://app.netlify.com/drop**.
-2. Drag this whole folder onto the page.
-3. You'll get a URL like `https://your-name.netlify.app`. Open it in **Edge** or **Chrome**.
-4. Click the **Install** icon in the address bar (or menu → **Apps → Install FocusLog**).
-5. The app opens in its own window. **Right-click its taskbar icon → Pin to taskbar.** Done — now you just click to run it.
-
-### Option B — GitHub Pages
-1. Create a repo, upload these files, enable **Settings → Pages** on the `main` branch.
-2. Open the published URL in Edge/Chrome and install as above.
-
----
-
-## 3. Install on your iPhone
-
-1. Open the **same hosted URL** (from Step 2) in **Safari**.
-2. Tap the **Share** button → **Add to Home Screen**.
-3. It now behaves like a native app, full-screen with its own icon.
-
-> iOS only allows install from Safari, and notifications on iOS require the app to be
-> added to the Home Screen first.
-
----
-
-## 4. Turn on sync across PC ↔ iPhone (optional)
-
-This keeps the same sessions, plans, and exams on every device. One-time setup:
-
-1. Create a free account at **https://supabase.com** and a **New project**
-   (any name; remember the database password).
-2. In the project, open **SQL Editor → New query**, paste the contents of
-   **`supabase-setup.sql`**, and click **Run**. This creates the tables and locks them
-   down so only *you* can see your data.
-3. In the project, go to **Settings → API** and copy:
-   - **Project URL** (e.g. `https://abcdxyz.supabase.co`)
-   - **anon public** key (the long `eyJ...` string — it's safe to use in the app)
-4. Open FocusLog → **Settings → Sync across devices**. Paste the URL and anon key,
-   click **Save connection**.
-5. Click **Create account** with an email + password (use the same login on every device).
-6. Hit **Sync now**. On your iPhone, install the app, enter the *same* URL/key, sign in
-   with the *same* account — your data appears. With **Auto-sync** on, changes flow
-   automatically a couple of seconds after you make them.
-
-**Privacy:** with sync off, nothing ever leaves your device. With sync on, your data
-lives only in *your* Supabase project, readable only by your account (enforced by the
-Row Level Security policies in the SQL file).
-
----
-
-## Tips
-
-- Change the **accent colour** (indigo / teal / amber) and reminder intervals in **Settings**.
-- The **break reminder** interval and a longer "you've been going a while" nudge are both configurable.
-- Use **Load demo data** in Settings to see what the Insights tab looks like with ~6 weeks of activity, then **Clear all data** when you're ready to start for real.
+1. Create a free project at **https://supabase.com**.
+2. **SQL Editor → New query**, paste **`supabase-setup.sql`**, **Run**.
+3. **Settings → API Keys**, copy the **Project URL** and the **publishable** key.
+4. Put them into FocusLog → Settings → Sync, then create an account and sign in.
 
 Enjoy your focused study sessions. 📚
