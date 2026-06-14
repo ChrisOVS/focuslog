@@ -1,5 +1,5 @@
 /* FocusLog service worker — offline-first app shell */
-const VERSION = 'focuslog-v1.0.0';
+const VERSION = 'focuslog-v1.0.2';
 const APP_SHELL = [
   './',
   './index.html',
