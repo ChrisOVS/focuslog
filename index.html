@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" data-accent="indigo">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>FocusLog — Study Timer</title>
+<meta name="description" content="A clean study timer with effort & attention logging, planning, and insights." />
+<meta name="theme-color" content="#6366f1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="FocusLog" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== Sidebar / Nav ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img class="brand-logo" src="icon-192.png" alt="" />
+      <span class="brand-name">FocusLog</span>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-view="timer"    type="button"><span class="nav-ic">⏱</span><span class="nav-lb">Timer</span></button>
+      <button class="nav-btn"        data-view="plan"     type="button"><span class="nav-ic">🗓</span><span class="nav-lb">Plan</span></button>
+      <button class="nav-btn"        data-view="insights" type="button"><span class="nav-ic">📊</span><span class="nav-lb">Insights</span></button>
+      <button class="nav-btn"        data-view="log"      type="button"><span class="nav-ic">📒</span><span class="nav-lb">Log</span></button>
+      <button class="nav-btn"        data-view="settings" type="button"><span class="nav-ic">⚙️</span><span class="nav-lb">Settings</span></button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="sync-pill" id="syncPill" title="Sync status">
+        <span class="dot" id="syncDot"></span><span id="syncText">Local only</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+
+    <!-- ====================== TIMER ====================== -->
+    <section class="view active" id="view-timer">
+      <header class="view-head">
+        <h1>Timer</h1>
+        <p class="sub" id="timerSubhead">Pick an exam and press start.</p>
+      </header>
+
+      <div class="timer-wrap">
+        <div class="timer-card">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+              <circle class="ring-track" cx="120" cy="120" r="108" />
+              <circle class="ring-prog"  cx="120" cy="120" r="108" id="ringProg" />
+            </svg>
+            <div class="ring-center">
+              <div class="clock" id="clock">00:00</div>
+              <div class="clock-sub" id="clockSub">Stopwatch</div>
+              <div class="phase-tag" id="phaseTag" hidden>Focus</div>
+            </div>
+          </div>
+
+          <div class="timer-controls">
+            <button class="btn btn-primary big" id="btnStart" type="button">Start</button>
+            <button class="btn btn-ghost" id="btnReset" type="button">Reset</button>
+            <button class="btn btn-accent" id="btnFinish" type="button" disabled>Finish &amp; log</button>
+          </div>
+
+          <div class="mini-stats">
+            <div class="mini"><span class="mini-k" id="msActive">0m</span><span class="mini-l">active</span></div>
+            <div class="mini"><span class="mini-k" id="msPauses">0</span><span class="mini-l">pauses</span></div>
+            <div class="mini"><span class="mini-k" id="msToday">0m</span><span class="mini-l">today</span></div>
+          </div>
+        </div>
+
+        <div class="timer-side">
+          <div class="field">
+            <label for="timerExam">Studying for</label>
+            <div class="row">
+              <select id="timerExam"></select>
+              <button class="btn btn-soft" id="btnAddExamTimer" type="button" title="Add exam">＋</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Mode</label>
+            <div class="seg" id="modeSeg">
+              <button class="seg-btn active" data-mode="stopwatch" type="button">Stopwatch</button>
+              <button class="seg-btn" data-mode="countdown" type="button">Countdown</button>
+            </div>
+          </div>
+
+          <div class="field" id="targetField" hidden>
+            <label for="targetMin">Target (minutes)</label>
+            <input type="number" id="targetMin" min="1" max="600" step="5" value="50" />
+          </div>
+
+          <div class="field">
+            <label class="switch-row">
+              <span>Break reminders</span>
+              <input type="checkbox" id="breakOn" class="switch" checked />
+            </label>
+            <div class="hint" id="breakHint">Every 25 min: a chime + a reminder to take a break.</div>
+          </div>
+
+          <div class="field">
+            <label for="timerNote">Quick note (optional)</label>
+            <input type="text" id="timerNote" placeholder="e.g. Chapter 4 problem sets" maxlength="200" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== PLAN ====================== -->
+    <section class="view" id="view-plan">
+      <header class="view-head">
+        <h1>Plan</h1>
+        <p class="sub">Schedule one-off or recurring study sessions.</p>
+      </header>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-title">Add a planned session</h2>
+          <div class="field">
+            <label for="planExam">Exam</label>
+            <div class="row">
+              <select id="planExam"></select>
+              <button class="btn btn-soft" id="btnAddExamPlan" type="button" title="Add exam">＋</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Repeat</label>
+            <div class="seg" id="planKindSeg">
+              <button class="seg-btn active" data-kind="once" type="button">One-off</button>
+              <button class="seg-btn" data-kind="weekly" type="button">Weekly</button>
+            </div>
+          </div>
+          <div class="field" id="planDateField">
+            <label for="planDate">Date</label>
+            <input type="date" id="planDate" />
+          </div>
+          <div class="field" id="planWeekdayField" hidden>
+            <label>Day of week</label>
+            <div class="weekday-pick" id="planWeekday">
+              <button type="button" data-wd="1">Mon</button>
+              <button type="button" data-wd="2">Tue</button>
+              <button type="button" data-wd="3">Wed</button>
+              <button type="button" data-wd="4">Thu</button>
+              <button type="button" data-wd="5">Fri</button>
+              <button type="button" data-wd="6">Sat</button>
+              <button type="button" data-wd="0">Sun</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field grow">
+              <label for="planTime">Time</label>
+              <input type="time" id="planTime" value="18:00" />
+            </div>
+            <div class="field grow">
+              <label for="planDuration">Duration (min)</label>
+              <input type="number" id="planDuration" min="5" max="600" step="5" value="50" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="planNote">Notes (optional)</label>
+            <textarea id="planNote" rows="2" placeholder="What will you focus on?"></textarea>
+          </div>
+          <button class="btn btn-primary" id="btnAddPlan" type="button">Add to plan</button>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Upcoming <span class="muted" id="upcomingRange"></span></h2>
+          <div id="upcomingList" class="plan-list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Recurring routines</h2>
+        <div id="recurringList" class="plan-list"></div>
+      </div>
+    </section>
+
+    <!-- ====================== INSIGHTS ====================== -->
+    <section class="view" id="view-insights">
+      <header class="view-head">
+        <h1>Insights</h1>
+        <p class="sub">How and when you study.</p>
+      </header>
+
+      <div class="stat-row" id="statRow"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">Study minutes</h2>
+          <div class="seg small" id="rangeSeg">
+            <button class="seg-btn active" data-range="14" type="button">14d</button>
+            <button class="seg-btn" data-range="30" type="button">30d</button>
+            <button class="seg-btn" data-range="90" type="button">90d</button>
+          </div>
+        </div>
+        <div id="chartMinutes" class="chart"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-title">When you study</h2>
+          <div class="muted small">Darker = more minutes, by weekday × time of day.</div>
+          <div id="chartHeat" class="chart"></div>
+        </div>
+        <div class="card">
+          <h2 class="card-title">Time per exam</h2>
+          <div id="chartExam" class="chart"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Effort &amp; attention trend</h2>
+        <div id="chartTrend" class="chart"></div>
+        <div class="legend">
+          <span class="lg"><i class="sw-effort"></i>Effort (1–5)</span>
+          <span class="lg"><i class="sw-att"></i>Attention (%)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Suggestions</h2>
+        <div id="suggestions" class="suggestions"></div>
+      </div>
+    </section>
+
+    <!-- ====================== LOG ====================== -->
+    <section class="view" id="view-log">
+      <header class="view-head">
+        <h1>Log</h1>
+        <p class="sub">Add sessions manually, manage exams, and review history.</p>
+      </header>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-title">Add a session manually</h2>
+          <div class="row">
+            <div class="field grow">
+              <label for="mDate">Date</label>
+              <input type="date" id="mDate" />
+            </div>
+            <div class="field grow">
+              <label for="mStart">Start time</label>
+              <input type="time" id="mStart" value="18:00" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field grow">
+              <label for="mDuration">Duration (min)</label>
+              <input type="number" id="mDuration" min="1" max="600" step="5" value="45" />
+            </div>
+            <div class="field grow">
+              <label for="mExam">Exam</label>
+              <select id="mExam"></select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field grow">
+              <label for="mEffort">Effort: <b id="mEffortVal">3</b>/5</label>
+              <input type="range" id="mEffort" min="1" max="5" step="1" value="3" />
+            </div>
+            <div class="field grow">
+              <label for="mAttention">Attention: <b id="mAttentionVal">80</b>%</label>
+              <input type="range" id="mAttention" min="0" max="100" step="5" value="80" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="mNote">Note (optional)</label>
+            <input type="text" id="mNote" placeholder="What did you cover?" maxlength="200" />
+          </div>
+          <button class="btn btn-primary" id="btnAddManual" type="button">Save session</button>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Exams</h2>
+            <button class="btn btn-soft" id="btnNewExam" type="button">＋ New exam</button>
+          </div>
+          <div id="examList" class="exam-list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">History</h2>
+          <div class="row gap">
+            <select id="histExamFilter"><option value="">All exams</option></select>
+            <button class="btn btn-ghost" id="btnExportCsv" type="button">Export CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="tbl" id="histTable">
+            <thead>
+              <tr><th>Date</th><th>Exam</th><th>Duration</th><th>Effort</th><th>Attention</th><th>Note</th><th></th></tr>
+            </thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+        <div id="histEmpty" class="empty" hidden>No sessions yet. Run the timer or add one manually.</div>
+      </div>
+    </section>
+
+    <!-- ====================== SETTINGS ====================== -->
+    <section class="view" id="view-settings">
+      <header class="view-head">
+        <h1>Settings</h1>
+        <p class="sub">Appearance, reminders, sync, and your data.</p>
+      </header>
+
+      <div class="card">
+        <h2 class="card-title">Appearance</h2>
+        <div class="field">
+          <label>Accent</label>
+          <div class="accent-pick" id="accentPick">
+            <button type="button" data-accent="indigo" class="ac ac-indigo active" title="Indigo"></button>
+            <button type="button" data-accent="teal" class="ac ac-teal" title="Teal"></button>
+            <button type="button" data-accent="amber" class="ac ac-amber" title="Amber"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Reminders &amp; announcements</h2>
+        <div class="row">
+          <div class="field grow">
+            <label for="setBreakEvery">Break reminder every (min)</label>
+            <input type="number" id="setBreakEvery" min="5" max="180" step="5" value="25" />
+          </div>
+          <div class="field grow">
+            <label for="setLongWarn">Long-session nudge after (min)</label>
+            <input type="number" id="setLongWarn" min="0" max="300" step="10" value="90" />
+          </div>
+        </div>
+        <label class="switch-row"><span>Sound chime</span><input type="checkbox" id="setSound" class="switch" checked /></label>
+        <label class="switch-row"><span>Spoken announcements</span><input type="checkbox" id="setVoice" class="switch" checked /></label>
+        <label class="switch-row"><span>Desktop notifications</span><input type="checkbox" id="setNotif" class="switch" /></label>
+        <button class="btn btn-soft" id="btnTestAnnounce" type="button">Test announcement</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">Sync across devices</h2>
+          <span class="sync-pill" id="syncPill2"><span class="dot" id="syncDot2"></span><span id="syncText2">Local only</span></span>
+        </div>
+        <p class="muted small">Sync uses a free Supabase project so your PC and iPhone share the same data. See the README for one-time setup. Leave blank to stay local-only.</p>
+        <div class="field">
+          <label for="sbUrl">Supabase Project URL</label>
+          <input type="text" id="sbUrl" placeholder="https://xxxxx.supabase.co" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="sbKey">Supabase anon (public) key</label>
+          <input type="password" id="sbKey" placeholder="eyJhbGci..." autocomplete="off" />
+        </div>
+        <button class="btn btn-soft" id="btnSaveSb" type="button">Save connection</button>
+
+        <div id="authBox" class="auth-box" hidden>
+          <hr class="sep" />
+          <div id="authedOut">
+            <div class="row">
+              <div class="field grow">
+                <label for="authEmail">Email</label>
+                <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="username" />
+              </div>
+              <div class="field grow">
+                <label for="authPass">Password</label>
+                <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" />
+              </div>
+            </div>
+            <div class="row gap">
+              <button class="btn btn-primary" id="btnSignIn" type="button">Sign in</button>
+              <button class="btn btn-ghost" id="btnSignUp" type="button">Create account</button>
+            </div>
+          </div>
+          <div id="authedIn" hidden>
+            <p>Signed in as <b id="authWho"></b></p>
+            <div class="row gap">
+              <button class="btn btn-primary" id="btnSyncNow" type="button">Sync now</button>
+              <label class="switch-row inline"><span>Auto-sync</span><input type="checkbox" id="setAutoSync" class="switch" checked /></label>
+              <button class="btn btn-ghost" id="btnSignOut" type="button">Sign out</button>
+            </div>
+            <div class="muted small" id="lastSynced"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Your data</h2>
+        <div class="row gap wrap">
+          <button class="btn btn-soft" id="btnExport" type="button">Export backup (JSON)</button>
+          <button class="btn btn-soft" id="btnImport" type="button">Import backup</button>
+          <input type="file" id="importFile" accept="application/json" hidden />
+          <button class="btn btn-soft" id="btnDemo" type="button">Load demo data</button>
+          <button class="btn btn-danger" id="btnClear" type="button">Clear all data</button>
+        </div>
+        <div class="muted small" id="dataStats"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Install</h2>
+        <p class="muted small">Windows: open in Edge/Chrome → menu → <b>Apps → Install FocusLog</b>, then right-click the taskbar icon → Pin. iPhone: open in Safari → Share → <b>Add to Home Screen</b>.</p>
+        <button class="btn btn-primary" id="btnInstall" type="button" hidden>Install app</button>
+      </div>
+
+      <div class="appfoot">FocusLog · runs fully offline · your data stays on your device unless you enable sync.</div>
+    </section>
+
+  </main>
+
+  <!-- ===== Mobile bottom nav (mirror) ===== -->
+  <nav class="botnav" id="botnav">
+    <button class="bn active" data-view="timer" type="button"><span>⏱</span>Timer</button>
+    <button class="bn" data-view="plan" type="button"><span>🗓</span>Plan</button>
+    <button class="bn" data-view="insights" type="button"><span>📊</span>Insights</button>
+    <button class="bn" data-view="log" type="button"><span>📒</span>Log</button>
+    <button class="bn" data-view="settings" type="button"><span>⚙️</span>More</button>
+  </nav>
+</div>
+
+<!-- ===== Finish / log modal ===== -->
+<div class="modal-back" id="finishModal" hidden>
+  <div class="modal">
+    <button class="modal-x" type="button" aria-label="Close">✕</button>
+    <h2>Log this session</h2>
+    <div class="finish-summary" id="finishSummary"></div>
+    <div class="field">
+      <label>Exam</label>
+      <select id="finishExam"></select>
+    </div>
+    <div class="field">
+      <label>Effort — how hard did you push? <b id="finishEffortVal">3</b>/5</label>
+      <input type="range" id="finishEffort" min="1" max="5" step="1" value="3" />
+      <div class="scale"><span>Easy</span><span>All-out</span></div>
+    </div>
+    <div class="field">
+      <label>Attention — % of the time you were focused <b id="finishAttVal">80</b>%</label>
+      <input type="range" id="finishAtt" min="0" max="100" step="5" value="80" />
+      <div class="scale"><span>Distracted</span><span>Locked in</span></div>
+    </div>
+    <div class="field">
+      <label for="finishNote">Note (optional)</label>
+      <textarea id="finishNote" rows="2" placeholder="What did you get done?"></textarea>
+    </div>
+    <div class="row gap end">
+      <button class="btn btn-ghost" id="finishDiscard" type="button">Discard</button>
+      <button class="btn btn-primary" id="finishSave" type="button">Save session</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Exam editor modal ===== -->
+<div class="modal-back" id="examModal" hidden>
+  <div class="modal">
+    <button class="modal-x" type="button" aria-label="Close">✕</button>
+    <h2 id="examModalTitle">New exam</h2>
+    <input type="hidden" id="examEditId" />
+    <div class="field">
+      <label for="examName">Name</label>
+      <input type="text" id="examName" placeholder="e.g. Calculus II" maxlength="60" />
+    </div>
+    <div class="field">
+      <label for="examDate">Exam date (optional)</label>
+      <input type="date" id="examDate" />
+    </div>
+    <div class="field">
+      <label>Colour</label>
+      <div class="color-pick" id="examColors"></div>
+    </div>
+    <div class="row gap end">
+      <button class="btn btn-ghost" id="examCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="examSave" type="button">Save exam</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Break / announcement banner ===== -->
+<div class="banner" id="banner" hidden>
+  <div class="banner-card">
+    <div class="banner-icon" id="bannerIcon">☕</div>
+    <div class="banner-text">
+      <div class="banner-title" id="bannerTitle">Time for a break</div>
+      <div class="banner-sub" id="bannerSub">You've done 25 minutes.</div>
+    </div>
+    <button class="btn btn-primary" id="bannerOk" type="button">Got it</button>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

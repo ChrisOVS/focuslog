@@ -1,0 +1,23 @@
+{
+  "name": "FocusLog — Study Timer",
+  "short_name": "FocusLog",
+  "description": "A clean study timer with effort & attention logging, planning, and insights.",
+  "id": "focuslog-study-timer",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0b0c14",
+  "theme_color": "#6366f1",
+  "categories": ["productivity", "education", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Start a session", "short_name": "Timer", "url": "./?view=timer", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Insights", "short_name": "Insights", "url": "./?view=insights", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
